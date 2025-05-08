@@ -69,7 +69,7 @@
     <div class="form-section">
         <h2>登入</h2>
         <form method="POST" action="login.php">
-            電子郵件: <input type="email" name="email" required><br>
+            電子郵件: <input type="text" name="email" required><br>
             密碼: <input type="password" name="password" required><br>
             <input type="submit" value="登入">
         </form>

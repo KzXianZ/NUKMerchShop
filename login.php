@@ -5,7 +5,16 @@ require 'db.php';  // 確保 $conn 已連線
 $email  = $_POST['email'] ?? '';
 $raw_pw = $_POST['password'] ?? '';
 
-// 1. 讀出該 Email 的 id 與雜湊後密碼
+// 管理員帳號寫死
+if ($email === 'user' && $raw_pw === '1111') {
+    $_SESSION['user_id'] = -1;
+    $_SESSION['email']   = 'admin';
+    $_SESSION['is_admin'] = true;
+    header("Location: admin.php");
+    exit;
+}
+
+// 1. 讀出該 Email 的 id 與雜湊後密碼（一般使用者）
 $stmt = $conn->prepare("SELECT id, password FROM users WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
@@ -19,23 +28,21 @@ if ($stmt->num_rows === 0) {
     if (!password_verify($raw_pw, $hashedPw)) {
         $errorMsg = "密碼錯誤";
     } else {
-        // 驗證成功
         $_SESSION['user_id'] = $id;
         $_SESSION['email']   = $email;
+        $_SESSION['is_admin'] = false;
         header("Location: memberPage.php");
         exit;
     }
 }
 $stmt->close();
-
-// 以下為錯誤顯示與自動跳轉
 ?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <title>登入失敗</title>
-    <!-- 3 秒後自動跳回登入頁 -->
     <meta http-equiv="refresh" content="3;url=member.php">
     <style>
         body {
@@ -61,26 +68,13 @@ $stmt->close();
         p {
             margin: 20px 0;
         }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #b08968;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background-color: #a17256;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>登入失敗</h2>
-        <p style="color: #d32f2f;"><?php echo htmlspecialchars($errorMsg); ?></p>
-        <p>3 秒後自動回到登入頁，或點下方按鈕立即返回。</p>
-        <a href="member.php" class="btn">回到登入頁</a>
-    </div>
+<div class="container">
+    <h2>登入失敗</h2>
+    <p><?php echo $errorMsg ?? '請重新登入'; ?></p>
+    <p>將在 3 秒後自動返回登入頁...</p>
+</div>
 </body>
 </html>
