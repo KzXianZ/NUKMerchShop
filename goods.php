@@ -1,5 +1,6 @@
 <?php
 // 連接資料庫
+session_start(); // 如果還沒開 session
 $conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
@@ -171,7 +172,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
 
             <?php
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
-                echo "<p>✅ 已將尺寸：<strong>$selectedSize</strong>、顏色：<strong>$selectedColor</strong> 的商品加入購物車。</p>";
+                $userId = $_SESSION['user_id'] ?? null;
+
+                if (!$userId) {
+                    die("請先登入才能加入購物車");
+                }
+
+                // 檢查資料庫中是否已有相同商品（相同 user、商品名、size、color）
+                $checkSql = "SELECT id, amount FROM cart_items WHERE user_id = ? AND product_name = ? AND size = ? AND color = ?";
+                $checkStmt = $conn->prepare($checkSql);
+                $checkStmt->bind_param("isss", $userId, $selectedProduct['name'], $selectedSize, $selectedColor);
+                $checkStmt->execute();
+                $existing = $checkStmt->get_result()->fetch_assoc();
+
+                if ($existing) {
+                    // 已有相同商品，加1數量
+                    $newAmount = $existing['amount'] + 1;
+                    $updateSql = "UPDATE cart_items SET amount = ? WHERE id = ?";
+                    $updateStmt = $conn->prepare($updateSql);
+                    $updateStmt->bind_param("ii", $newAmount, $existing['id']);
+                    $updateStmt->execute();
+                } else {
+                    // 沒有的話就插入新資料
+                    $insertSql = "INSERT INTO cart_items (user_id, product_name, size, color, price, amount)
+                                VALUES (?, ?, ?, ?, ?, 1)";
+                    $insertStmt = $conn->prepare($insertSql);
+                    $insertStmt->bind_param("isssi", $userId, $selectedProduct['name'], $selectedSize, $selectedColor, $selectedProduct['price']);
+                    $insertStmt->execute();
+                }
+
+                echo "<p>✅ 商品已加入購物車。</p>";
             }
             ?>
         </div>

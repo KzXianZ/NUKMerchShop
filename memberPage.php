@@ -70,6 +70,18 @@ $stmt->close();
 </head>
 <body>
 
+<div style="text-align: center; margin-top: 30px;">
+    <a href="index.php" style="
+        background-color: #d7ccc8;
+        color: #4e342e;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: bold;
+        display: inline-block;
+    "> 回到主頁</a>
+</div>
+
 <div class="container">
     <h2>歡迎，<?php echo htmlspecialchars($name); ?></h2>
 
