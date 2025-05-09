@@ -5,9 +5,35 @@ if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
 }
 
-// 從資料庫獲取獨特商品列表（按名稱分組）
-$sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
-$result = $conn->query($sql);
+// 定義商品分類映射
+$categories = [
+    'tops' => ['高雄大學紀念T恤', '高雄大學紀念襯衫', '高雄大學紀念大學T', '高雄大學紀念帽T','高雄大學紀念棒球外套'],
+    'pants' => ['高雄大學紀念短褲', '高雄大學紀念長褲'],
+    'bags' => ['高雄大學20周年紀念帆布袋', '高雄大學紀念後背包'],
+    'stationery' => ['高雄大學20周年紀念鋼筆'],
+    'hot' => ['高雄大學紀念T恤', '高雄大學紀念短褲'], // 假設這些是熱銷商品
+    'all' => [] // 全部商品
+];
+
+// 獲取當前選擇的分類 (從URL參數)
+$currentCategory = $_GET['category'] ?? 'all';
+
+// 構建SQL查詢
+if ($currentCategory === 'all') {
+    $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
+    $stmt = $conn->prepare($sql);
+} else {
+    // 只查詢屬於當前分類的商品
+    $placeholders = implode(',', array_fill(0, count($categories[$currentCategory]), '?'));
+    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
+    $stmt = $conn->prepare($sql);
+    // 綁定參數
+    $types = str_repeat('s', count($categories[$currentCategory]));
+    $stmt->bind_param($types, ...$categories[$currentCategory]);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 $products = [];
 
 // 商品圖片映射表
@@ -19,7 +45,10 @@ $productImages = [
     '高雄大學紀念外套' => 'https://cdn.store-assets.com/s/774393/i/41986309.jpg?width=1024',
     '高雄大學紀念襯衫' => 'https://img.cloudimg.in/uploads/shops/19623/products/fa/fae2e7c0ab1aa603193e661af35f162c.jpg',
     '高雄大學紀念大學T' => 'https://shoplineimg.com/59551e7e595630172500089b/5e20c41ebae0a200154ba298/800x.jpg?',
-    '高雄大學紀念長褲' => 'https://s.yimg.com/zp/MerchandiseImages/D792F653CB-SP-12248789.jpg'
+    '高雄大學紀念長褲' => 'https://s.yimg.com/zp/MerchandiseImages/D792F653CB-SP-12248789.jpg',
+    '高雄大學紀念後背包' => 'https://www.costco.com.tw/medias/sys_master/images/hcc/h27/257772281954334.jpg',
+    '高雄大學紀念棒球外套' => 'https://diz36nn4q02zr.cloudfront.net/webapi/imagesV3/Cropped/SalePage/10175889/4/638820261409530000?v=1',
+    '高雄大學紀念帽T' => 'https://shoplineimg.com/57a8189d617069559a8e0400/63490d84e2d9bf002bf520de/800x.jpg'
 ];
 
 if ($result->num_rows > 0) {
@@ -97,9 +126,12 @@ $conn->close();
             width: 200px;
             background-color: #f0d5b6;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
-        .sidebar button {
+        .category-btn {
             width: 100%;
             padding: 14px 16px;
             background-color: #d7a86e;
@@ -109,10 +141,16 @@ $conn->close();
             font-size: 15px;
             cursor: pointer;
             text-align: left;
+            text-decoration: none;
         }
-
-        .sidebar button:hover {
+        
+        .category-btn:hover {
             background-color: #c48a53;
+        }
+        
+        .category-btn.active {
+            background-color: #b08968;
+            font-weight: bold;
         }
 
         .content {
@@ -122,16 +160,17 @@ $conn->close();
         }
 
         .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 30px;
             margin-top: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .gallery a {
             display: block;
-            width: 250px;
             border: 2px solid #e2c7ab;
             border-radius: 12px;
             overflow: hidden;
@@ -140,6 +179,7 @@ $conn->close();
             text-decoration: none;
             color: #4b3a2d;
             background: white;
+            height: 100%;
         }
 
         .gallery a:hover {
@@ -185,17 +225,28 @@ $conn->close();
 <div class="container">
     <!-- 商品分類 -->
     <div class="sidebar">
-        <button onclick="showCategory('all')">🏠 全部商品</button>
-        <button onclick="showCategory('hot')">🔥 熱銷</button>
-        <button onclick="showCategory('tops')">👕 上衣</button>
-        <button onclick="showCategory('pants')">👖 褲子</button>
-        <button onclick="showCategory('bags')">👜 包包</button>
-        <button onclick="showCategory('stationery')">✏️ 文具</button>
+        <a href="?category=all" class="category-btn <?= $currentCategory === 'all' ? 'active' : '' ?>">🏠 全部商品</a>
+        <a href="?category=hot" class="category-btn <?= $currentCategory === 'hot' ? 'active' : '' ?>">🔥 熱銷</a>
+        <a href="?category=tops" class="category-btn <?= $currentCategory === 'tops' ? 'active' : '' ?>">👕 上衣</a>
+        <a href="?category=pants" class="category-btn <?= $currentCategory === 'pants' ? 'active' : '' ?>">👖 褲子</a>
+        <a href="?category=bags" class="category-btn <?= $currentCategory === 'bags' ? 'active' : '' ?>">👜 包包</a>
+        <a href="?category=stationery" class="category-btn <?= $currentCategory === 'stationery' ? 'active' : '' ?>">✏️ 文具</a>
     </div>
 
     <!-- 商品顯示區 -->
     <div class="content">
-        <h2 id="category-title">全部商品</h2>
+        <h2 id="category-title">
+            <?php 
+                switch($currentCategory) {
+                    case 'hot': echo "🔥 熱銷商品"; break;
+                    case 'tops': echo "👕 上衣類"; break;
+                    case 'pants': echo "👖 褲子類"; break;
+                    case 'bags': echo "👜 包包類"; break;
+                    case 'stationery': echo "✏️ 文具類"; break;
+                    default: echo "全部商品";
+                }
+            ?>
+        </h2>
         <div class="gallery">
             <?php foreach ($products as $product): ?>
                 <a href="goods.php?name=<?= urlencode($product['name']) ?>">
@@ -208,23 +259,19 @@ $conn->close();
 </div>
 
 <script>
-    function showCategory(category) {
-        const title = document.getElementById("category-title");
-        let categoryName = "全部商品";
+    // 高亮當前選擇的分類 (備用，PHP已經處理)
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentCategory = "<?= $currentCategory ?>";
+        const buttons = document.querySelectorAll('.category-btn');
         
-        switch(category) {
-            case 'hot': categoryName = "🔥 熱銷商品"; break;
-            case 'tops': categoryName = "👕 上衣類"; break;
-            case 'pants': categoryName = "👖 褲子類"; break;
-            case 'bags': categoryName = "👜 包包類"; break;
-            case 'stationery': categoryName = "✏️ 文具類"; break;
-        }
-        
-        title.innerText = categoryName;
-        
-        // 這裡可以添加AJAX請求來獲取分類商品
-        // 目前先顯示全部商品
-    }
+        buttons.forEach(button => {
+            const category = button.getAttribute('href').split('=')[1];
+            if (category === currentCategory || 
+               (currentCategory === 'all' && category === undefined)) {
+                button.classList.add('active');
+            }
+        });
+    });
 </script>
 
 </body>

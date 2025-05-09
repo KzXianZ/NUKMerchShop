@@ -1,6 +1,5 @@
 <?php
 // 連接資料庫
-session_start(); // 如果還沒開 session
 $conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
@@ -34,7 +33,10 @@ $productImages = [
     '高雄大學紀念外套' => 'https://cdn.store-assets.com/s/774393/i/41986309.jpg?width=1024',
     '高雄大學紀念襯衫' => 'https://img.cloudimg.in/uploads/shops/19623/products/fa/fae2e7c0ab1aa603193e661af35f162c.jpg',
     '高雄大學紀念大學T' => 'https://shoplineimg.com/59551e7e595630172500089b/5e20c41ebae0a200154ba298/800x.jpg?',
-    '高雄大學紀念長褲' => 'https://s.yimg.com/zp/MerchandiseImages/D792F653CB-SP-12248789.jpg'
+    '高雄大學紀念長褲' => 'https://s.yimg.com/zp/MerchandiseImages/D792F653CB-SP-12248789.jpg',
+    '高雄大學紀念後背包' => 'https://www.costco.com.tw/medias/sys_master/images/hcc/h27/257772281954334.jpg',
+    '高雄大學紀念棒球外套' => 'https://diz36nn4q02zr.cloudfront.net/webapi/imagesV3/Cropped/SalePage/10175889/4/638820261409530000?v=1',
+    '高雄大學紀念帽T' => 'https://shoplineimg.com/57a8189d617069559a8e0400/63490d84e2d9bf002bf520de/800x.jpg'
 ];
 
 // 預設選擇第一個商品
@@ -131,6 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
 </head>
 <body>
     <div class="container">
+        <!-- 在商品資訊區頂部添加 -->
+        <div style="margin-bottom: 20px;">
+            <a href="index.php" style="color: #b08968; text-decoration: none;">← 返回商品列表</a>
+        </div>
+
         <!-- 商品圖片區 -->
         <div class="product-image">
             <img src="<?= htmlspecialchars($productImages[$productName] ?? 'default.jpg') ?>" alt="<?= htmlspecialchars($productName) ?>">
@@ -172,36 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
 
             <?php
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
-                $userId = $_SESSION['user_id'] ?? null;
-
-                if (!$userId) {
-                    die("請先登入才能加入購物車");
-                }
-
-                // 檢查資料庫中是否已有相同商品（相同 user、商品名、size、color）
-                $checkSql = "SELECT id, amount FROM cart_items WHERE user_id = ? AND product_name = ? AND size = ? AND color = ?";
-                $checkStmt = $conn->prepare($checkSql);
-                $checkStmt->bind_param("isss", $userId, $selectedProduct['name'], $selectedSize, $selectedColor);
-                $checkStmt->execute();
-                $existing = $checkStmt->get_result()->fetch_assoc();
-
-                if ($existing) {
-                    // 已有相同商品，加1數量
-                    $newAmount = $existing['amount'] + 1;
-                    $updateSql = "UPDATE cart_items SET amount = ? WHERE id = ?";
-                    $updateStmt = $conn->prepare($updateSql);
-                    $updateStmt->bind_param("ii", $newAmount, $existing['id']);
-                    $updateStmt->execute();
-                } else {
-                    // 沒有的話就插入新資料
-                    $insertSql = "INSERT INTO cart_items (user_id, product_name, size, color, price, amount)
-                                VALUES (?, ?, ?, ?, ?, 1)";
-                    $insertStmt = $conn->prepare($insertSql);
-                    $insertStmt->bind_param("isssi", $userId, $selectedProduct['name'], $selectedSize, $selectedColor, $selectedProduct['price']);
-                    $insertStmt->execute();
-                }
-
-                echo "<p>✅ 商品已加入購物車。</p>";
+                echo "<p>✅ 已將尺寸：<strong>$selectedSize</strong>、顏色：<strong>$selectedColor</strong> 的商品加入購物車。</p>";
             }
             ?>
         </div>
