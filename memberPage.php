@@ -95,6 +95,7 @@ $stmt->close();
 
     
     <a href="editProfile.php">帳戶詳細資料</a>
+    <a href="orderStatus.php">訂單狀態</a>
     <a href="logout.php">登出</a>
 </div>
 
