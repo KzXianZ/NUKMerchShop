@@ -8,10 +8,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>管理員後台</title>
+    <title>使用者管理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             background-color: #f2e2d2;
             color: #4e342e;
             margin: 0;
@@ -26,15 +27,16 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        h2 {
+        h1 {
             color: #5d4037;
         }
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            margin-top: 50px;
             align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
         }
         .card {
             background-color: #f3d5b5;
@@ -60,41 +62,19 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         .card a:hover {
             background-color: #a17256;
         }
-        .description {
-            margin-top: 12px;
-            font-size: 15px;
-            color: #6e4b3a;
-        }
-        .logout {
-            margin-top: 50px;
-        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>歡迎管理員 <?php echo htmlspecialchars($_SESSION['email']); ?></h2>
+    <h1>使用者管理</h1>
 
     <div class="button-group">
         <div class="card">
-            <a href="product_manage.php">商品管理</a>
-            <div class="description">新增、修改、刪除商品資訊</div>
+            <a href="view_users.php">查看所有使用者</a>
         </div>
         <div class="card">
-            <a href="order_manage.php">訂單管理</a>
-            <div class="description">查看訂單與更新配送狀態</div>
+            <a href="view_user_cart.php">查看購物車內容</a>
         </div>
-        <div class="card">
-            <a href="user_manage.php">使用者管理</a>
-            <div class="description">瀏覽會員資料與購物車內容</div>
-        </div>
-        <div class="card">
-            <a href="report.php">報表分析</a>
-            <div class="description">檢視銷售數據與熱門商品</div>
-        </div>
-    </div>
-
-    <div class="logout">
-        <a href="logout.php">登出</a>
     </div>
 </div>
 </body>
