@@ -62,6 +62,23 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         .card a:hover {
             background-color: #a17256;
         }
+        .back-link {
+            margin-top: 50px;
+        }
+        .back-link a {
+            color: #5d4037;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 10px 20px;
+            border: 1px solid #b08968;
+            border-radius: 5px;
+            background-color: #f3d5b5;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .back-link a:hover {
+            background-color: #e4bfa3;
+            color: #3e2723;
+        }
     </style>
 </head>
 <body>
@@ -75,6 +92,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         <div class="card">
             <a href="view_user_cart.php">查看購物車內容</a>
         </div>
+    </div>
+
+    <div class="back-link">
+        <a href="admin.php">← 回到管理員首頁</a>
     </div>
 </div>
 </body>
