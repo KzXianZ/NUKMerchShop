@@ -1,4 +1,7 @@
 <?php
+// 開啟 session 以檢查用戶是否登入
+session_start();
+
 // 連接資料庫
 $conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
 if ($conn->connect_error) {
@@ -58,6 +61,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
             break;
         }
     }
+}
+
+// 處理加入購物車邏輯
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
+    // 檢查用戶是否已登入
+    if (!isset($_SESSION['user'])) {
+        // 如果未登入，跳轉到登入頁面
+        echo "<script>alert('請先登入才能加入購物車'); window.location.href='member.php';</script>";
+        exit;
+    }
+
+    // 已登入，處理加入購物車的邏輯
+    echo "<p>✅ 已將尺寸：<strong>$selectedSize</strong>、顏色：<strong>$selectedColor</strong> 的商品加入購物車。</p>";
 }
 ?>
 
@@ -129,13 +145,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
         select, input[type="radio"] {
             margin-right: 10px;
         }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #b08968;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 在商品資訊區頂部添加 -->
-        <div style="margin-bottom: 20px;">
-            <a href="index.php" style="color: #b08968; text-decoration: none;">← 返回商品列表</a>
+        <div>
+            <a href="index.php" class="back-link">← 返回商品列表</a>
         </div>
 
         <!-- 商品圖片區 -->
@@ -176,12 +199,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_selection'])) 
                 <button type="submit" name="add_to_cart">加入購物車</button>
                 <input type="hidden" name="update_selection" value="1">
             </form>
-
-            <?php
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
-                echo "<p>✅ 已將尺寸：<strong>$selectedSize</strong>、顏色：<strong>$selectedColor</strong> 的商品加入購物車。</p>";
-            }
-            ?>
         </div>
     </div>
 </body>
