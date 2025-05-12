@@ -1,5 +1,13 @@
 <!-- index.php -->
-<?php session_start(); ?>
+<?php session_start();
+
+// 如果已登入就跳轉到會員頁面
+if (isset($_SESSION['user_id'])) {
+    header("Location: memberPage.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
