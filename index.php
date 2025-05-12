@@ -1,42 +1,51 @@
 <?php
-// 連接資料庫
+// 資料庫連線
 $conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
 }
 
-// 定義商品分類映射
+// 商品分類
 $categories = [
     'tops' => ['高雄大學紀念T恤', '高雄大學紀念襯衫', '高雄大學紀念大學T', '高雄大學紀念帽T','高雄大學紀念棒球外套'],
     'pants' => ['高雄大學紀念短褲', '高雄大學紀念長褲'],
     'bags' => ['高雄大學20周年紀念帆布袋', '高雄大學紀念後背包'],
     'stationery' => ['高雄大學20周年紀念鋼筆'],
-    'hot' => ['高雄大學紀念T恤', '高雄大學紀念短褲'], // 假設這些是熱銷商品
-    'all' => [] // 全部商品
+    'hot' => ['高雄大學紀念T恤', '高雄大學紀念短褲'],
+    'all' => []
 ];
 
-// 獲取當前選擇的分類 (從URL參數)
+// 取得分類與搜尋關鍵字
 $currentCategory = $_GET['category'] ?? 'all';
+$searchTerm = trim($_GET['search'] ?? '');
 
-// 構建SQL查詢
-if ($currentCategory === 'all') {
-    $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
+// 查詢商品
+if (!empty($searchTerm)) {
+    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name LIKE CONCAT('%', ?, '%') GROUP BY name";
     $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $searchTerm);
 } else {
-    // 只查詢屬於當前分類的商品
-    $placeholders = implode(',', array_fill(0, count($categories[$currentCategory]), '?'));
-    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
-    $stmt = $conn->prepare($sql);
-    // 綁定參數
-    $types = str_repeat('s', count($categories[$currentCategory]));
-    $stmt->bind_param($types, ...$categories[$currentCategory]);
+    if ($currentCategory === 'all') {
+        $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
+        $stmt = $conn->prepare($sql);
+    } else {
+        $names = $categories[$currentCategory] ?? [];
+        if (count($names) > 0) {
+            $placeholders = implode(',', array_fill(0, count($names), '?'));
+            $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
+            $stmt = $conn->prepare($sql);
+            $types = str_repeat('s', count($names));
+            $stmt->bind_param($types, ...$names);
+        } else {
+            $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
+            $stmt = $conn->prepare($sql);
+        }
+    }
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
 $products = [];
-
-// 商品圖片映射表
 $productImages = [
     '高雄大學紀念短褲' => 'https://www.costco.com.tw/medias/sys_master/images/hf1/hb5/259572020936734.jpg',
     '高雄大學紀念T恤' => 'https://ec.blueco.com.tw/Uploads/Images/產品說明/衣服類/衣服款式/圓領圓筒T恤1.jpg',
@@ -67,152 +76,41 @@ $conn->close();
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>高大周邊首頁</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fdf6ec;
-            color: #4e342e;
+        body { font-family: Arial; background-color: #fdf6ec; color: #4e342e; margin: 0; }
+        .header { background-color: #e6c3a5; padding: 12px 20px; display: flex; justify-content: space-between; }
+        .search-box input { padding: 6px; width: 200px; border: 3px solid #b08968; border-radius: 4px; }
+        .search-box button, .icons button {
+            background-color: #b08968; color: white; border: none; border-radius: 4px;
+            padding: 6px 12px; cursor: pointer;
         }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            background-color: #e6c3a5;
-        }
-
-        .search-box input {
-            padding: 6px;
-            width: 200px;
-            border: 3px solid #b08968;
-            border-radius: 4px;
-        }
-
-        .search-box button {
-            padding: 6px 12px;
-            background-color: #b08968;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .icons button {
-            background-color: #b08968;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .container {
-            display: flex;
-            min-height: calc(100vh - 60px);
-        }
-
-        .sidebar {
-            width: 200px;
-            background-color: #f0d5b6;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
+        .icons { display: flex; gap: 10px; }
+        .container { display: flex; }
+        .sidebar { width: 200px; background-color: #f0d5b6; display: flex; flex-direction: column; }
         .category-btn {
-            width: 100%;
-            padding: 14px 16px;
-            background-color: #d7a86e;
-            border: none;
-            border-bottom: 1px solid #c28e5c;
-            color: white;
-            font-size: 15px;
-            cursor: pointer;
-            text-align: left;
-            text-decoration: none;
+            padding: 14px 16px; background-color: #d7a86e; color: white; border: none;
+            border-bottom: 1px solid #c28e5c; cursor: pointer; text-align: left; text-decoration: none;
         }
-        
-        .category-btn:hover {
-            background-color: #c48a53;
-        }
-        
-        .category-btn.active {
-            background-color: #b08968;
-            font-weight: bold;
-        }
-
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            background-color: #fff8f0;
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
+        .category-btn:hover { background-color: #c48a53; }
+        .category-btn.active { background-color: #b08968; font-weight: bold; }
+        .content { flex-grow: 1; padding: 20px; background-color: #fff8f0; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
         .gallery a {
-            display: block;
-            border: 2px solid #e2c7ab;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.2s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            text-decoration: none;
-            color: #4b3a2d;
-            background: white;
-            height: 100%;
+            border: 2px solid #e2c7ab; border-radius: 12px; overflow: hidden; text-decoration: none;
+            color: #4b3a2d; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-
-        .gallery a:hover {
-            transform: scale(1.05);
-        }
-
-        .gallery img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .product-name {
-            padding: 15px;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        #category-title {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #5d4037;
-            text-align: center;
-        }
+        .gallery a:hover { transform: scale(1.05); }
+        .gallery img { width: 100%; height: 250px; object-fit: cover; }
+        .product-name { padding: 15px; font-weight: bold; text-align: center; }
+        #category-title { font-size: 24px; margin-bottom: 20px; color: #5d4037; text-align: center; }
     </style>
 </head>
 <body>
 
-<!-- 頂部導航 -->
 <div class="header">
-    <form action="search.php" method="GET" class="search-box">
-        <input type="text" name="query" placeholder="搜尋..." required>
+    <form method="GET" action="index.php" class="search-box">
+        <input type="text" name="search" placeholder="搜尋商品..." value="<?= htmlspecialchars($_GET['search'] ?? '', ENT_QUOTES); ?>">
         <button type="submit">搜尋</button>
     </form>
     <div class="icons">
@@ -221,9 +119,7 @@ $conn->close();
     </div>
 </div>
 
-<!-- 主容器 -->
 <div class="container">
-    <!-- 商品分類 -->
     <div class="sidebar">
         <a href="?category=all" class="category-btn <?= $currentCategory === 'all' ? 'active' : '' ?>">🏠 全部商品</a>
         <a href="?category=hot" class="category-btn <?= $currentCategory === 'hot' ? 'active' : '' ?>">🔥 熱銷</a>
@@ -233,10 +129,9 @@ $conn->close();
         <a href="?category=stationery" class="category-btn <?= $currentCategory === 'stationery' ? 'active' : '' ?>">✏️ 文具</a>
     </div>
 
-    <!-- 商品顯示區 -->
     <div class="content">
         <h2 id="category-title">
-            <?php 
+            <?php
                 switch($currentCategory) {
                     case 'hot': echo "🔥 熱銷商品"; break;
                     case 'tops': echo "👕 上衣類"; break;
@@ -257,22 +152,6 @@ $conn->close();
         </div>
     </div>
 </div>
-
-<script>
-    // 高亮當前選擇的分類 (備用，PHP已經處理)
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentCategory = "<?= $currentCategory ?>";
-        const buttons = document.querySelectorAll('.category-btn');
-        
-        buttons.forEach(button => {
-            const category = button.getAttribute('href').split('=')[1];
-            if (category === currentCategory || 
-               (currentCategory === 'all' && category === undefined)) {
-                button.classList.add('active');
-            }
-        });
-    });
-</script>
 
 </body>
 </html>
