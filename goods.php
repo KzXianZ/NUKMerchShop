@@ -169,19 +169,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         select, input[type="radio"] {
             margin-right: 10px;
         }
-        .back-link {
+        .back-btn {
             display: inline-block;
             margin-bottom: 20px;
-            font-size: 16px;
-            color: #b08968;
+            padding: 10px 20px;
+            background-color: #b08968;
+            color: white;
             text-decoration: none;
+            border-radius: 24px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .back-btn:hover {
+            background-color: #8b5c3e;
+        }
+        .back-btn-container {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div>
-            <a href="index.php" class="back-link">← 返回商品列表</a>
+            <a href="index.php" class="back-btn">← 返回商品列表</a>
         </div>
 
         <div class="product-image">

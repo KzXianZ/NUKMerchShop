@@ -23,67 +23,106 @@ $stmt->close();
     <meta charset="UTF-8">
     <title>會員中心</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #fdf6ec;
-            color: #4e342e;
-            margin: 0;
-            padding: 0;
-        }
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f0d8b8; /* 溫暖底色 */
+        color: #4e342e;
+        margin: 0;
+        padding: 0;
+    }
 
-        .container {
-            max-width: 500px;
-            margin: 80px auto;
-            background-color: #fff8f0;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
+    .container {
+        max-width: 500px;
+        margin: 80px auto;
+        background-color: #fff3e0; /* 中間卡片淺米色 */
+        padding: 30px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
 
-        h2 {
-            color: #5d4037;
-        }
+    h2 {
+        color: #4e342e;
+        margin-bottom: 20px;
+    }
 
-        a {
-            display: block;  /* 改為塊級元素，使其垂直排列 */
-            margin: 12px 0;
-            padding: 10px 20px;
-            background-color: #b08968;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-        }
+    .btn {
+        display: block;
+        margin: 12px 0;
+        padding: 12px 20px;
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        box-shadow: inset 0 -2px 0 rgba(0,0,0,0.1);
+    }
+
+    .btn-profile {
+        background-color: #c69c6d;
+    }
+    .btn-profile:hover {
+        background-color: #b8865c;
+    }
+
+    .btn-orders {
+        background-color: #d6a66c;
+    }
+    .btn-orders:hover {
+        background-color: #c18f55;
+    }
+
+    .btn-logout {
+        background-color: #e0b07d;
+    }
+    .btn-logout:hover {
+        background-color: #cc9c67;
+    }
+
+    .avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-bottom: 20px;
+        object-fit: cover;
+        border: 2px solid #d7ccc8;
+    }
+
+    .back-home {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+   .back-home a {
+    background-color: #795548;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.back-home a:hover {
+    background-color: #5d4037;
+}
+
+</style>
 
 
-        a:hover {
-            background-color: #a17256;
-        }
-
-        img.avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
 
 <div style="text-align: center; margin-top: 30px;">
-    <a href="index.php" style="
-        background-color: #d7ccc8;
-        color: #4e342e;
-        text-decoration: none;
-        padding: 10px 20px;
-        border-radius: 6px;
-        font-weight: bold;
-        display: inline-block;
-    "> 回到主頁</a>
+    <div class="back-home">
+    <a href="index.php">回到主頁</a>
+</div>
+
 </div>
 
 <div class="container">
-    <h2>歡迎，<?php echo htmlspecialchars($name); ?></h2>
+    <h2>歡迎<?php echo htmlspecialchars($name); ?></h2>
 
     <?php if ($avatar): ?>
         <!-- 顯示頭像 -->
@@ -94,9 +133,11 @@ $stmt->close();
     <?php endif; ?>
 
     
-    <a href="editProfile.php">帳戶詳細資料</a>
-    <a href="orderStatus.php">訂單狀態</a>
-    <a href="logout.php">登出</a>
+    <a href="editProfile.php" class="btn btn-profile">帳戶詳細資料</a>
+    <a href="orderStatus.php" class="btn btn-orders">訂單狀態</a>
+    <a href="logout.php" class="btn btn-logout">登出</a>
+
+
 </div>
 
 </body>
