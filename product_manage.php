@@ -14,7 +14,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $upload_dir = 'goodImage/';
         $image_name = basename($_FILES['image']['name']);
-        $target_file = $upload_dir . $image_name;
+        $image_only = basename($_FILES['image']['name']);  // 只取檔名
+        $target_file = $upload_dir . $image_only;          // 實際儲存路徑
 
         // 確認檔案為圖片
         $image_file_type = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
@@ -31,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
 
     // 寫入資料庫
     $stmt = $conn->prepare("INSERT INTO goods (name, size, color, price, amount, image_path) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssiss", $_POST['name'], $_POST['size'], $_POST['color'], $_POST['price'], $_POST['amount'], $target_file);
+    $stmt->bind_param("sssiss", $_POST['name'], $_POST['size'], $_POST['color'], $_POST['price'], $_POST['amount'], $image_only);
     $stmt->execute();
     $stmt->close();
 

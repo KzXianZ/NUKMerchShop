@@ -23,19 +23,6 @@ if (empty($products)) {
 $sizes = array_unique(array_column($products, 'size'));
 $colors = array_unique(array_column($products, 'color'));
 
-$productImages = [
-    '高雄大學紀念短褲' => 'https://www.costco.com.tw/medias/sys-master/images/hf1/hb5/259572020936734.jpg',
-    '高雄大學紀念T恤' => 'https://ec.blueco.com.tw/Uploads/Images/產品說明/衣服類/衣服款式/圓領圓筒T恤1.jpg',
-    '高雄大學20周年紀念鋼筆' => 'https://thumbnail10.coupangcdn.com/thumbnails/remote/492x492ex/image/product/image/vendoritem/2018/09/19/3285925450/761a0af0-716e-4c19-967f-29d4c65b44d3.jpg',
-    '高雄大學20周年紀念帆布袋' => 'https://shoplineimg.com/5f4760ee70e52e003f4199b5/5fb5e7b9e3728f003556db6a/800x.jpg',
-    '高雄大學紀念外套' => 'https://cdn.store-assets.com/s/774393/i/41986309.jpg?width=1024',
-    '高雄大學紀念襯衫' => 'https://img.cloudimg.in/uploads/shops/19623/products/fa/fae2e7c0ab1aa603193e661af35f162c.jpg',
-    '高雄大學紀念大學T' => 'https://shoplineimg.com/59551e7e595630172500089b/5e20c41ebae0a200154ba298/800x.jpg?',
-    '高雄大學紀念長褲' => 'https://s.yimg.com/zp/MerchandiseImages/D792F653CB-SP-12248789.jpg',
-    '高雄大學紀念後背包' => 'https://www.costco.com.tw/medias/sys-master/images/hcc/h27/257772281954334.jpg',
-    '高雄大學紀念棒球外套' => 'https://diz36nn4q02zr.cloudfront.net/webapi/imagesV3/Cropped/SalePage/10175889/4/638820261409530000?v=1',
-    '高雄大學紀念帽T' => 'https://shoplineimg.com/57a8189d617069559a8e0400/63490d84e2d9bf002bf520de/800x.jpg'
-];
 
 // 初始預設值
 $selectedProduct = $products[0];
@@ -131,7 +118,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
         }
         .product-image img {
-            max-width: 100%;
+            width: 300px;            /* 固定寬度 */
+            height: 300px;           /* 固定高度 */
+            object-fit: cover;       /* 保持比例裁切，圖片不變形 */
             border-radius: 10px;
             border: 1px solid #ddd0c0;
         }
@@ -169,33 +158,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         select, input[type="radio"] {
             margin-right: 10px;
         }
-        .back-btn {
+        .back-link {
             display: inline-block;
             margin-bottom: 20px;
-            padding: 10px 20px;
-            background-color: #b08968;
-            color: white;
+            font-size: 16px;
+            color: #b08968;
             text-decoration: none;
-            border-radius: 24px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .back-btn:hover {
-            background-color: #8b5c3e;
-        }
-        .back-btn-container {
-            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div>
-            <a href="index.php" class="back-btn">← 返回商品列表</a>
+            <a href="index.php" class="back-link">← 返回商品列表</a>
         </div>
 
         <div class="product-image">
-            <img src="<?= htmlspecialchars($productImages[$productName] ?? 'default.jpg') ?>" alt="<?= htmlspecialchars($productName) ?>">
+            <?php
+            // 從選擇的商品中獲取圖片路徑，若沒有則顯示預設圖片
+            $imagePath = $selectedProduct['image_path'] ?? '';
+
+            if (empty($imagePath)) {
+                $imagePath = 'goodImage/default.png';
+            } elseif (!preg_match('/^https?:\/\//', $imagePath)) {
+                // 如果不是 http 或 https 開頭，代表是本地圖片，加上 goodImage/
+                $imagePath = 'goodImage/' . $imagePath;
+            }
+            ?>
+        
+               <img src="<?= htmlspecialchars($imagePath) ?>" alt="<?= htmlspecialchars($selectedProduct['name']) ?>">
+
         </div>
 
         <div class="product-info">
