@@ -89,9 +89,6 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         <div class="card">
             <a href="sales_report.php">銷售報表</a>
         </div>
-        <div class="card">
-            <a href="top_selling_products.php">熱門商品</a>
-        </div>
     </div>
 
     <div class="back-link">

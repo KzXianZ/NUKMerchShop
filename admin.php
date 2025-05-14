@@ -85,11 +85,11 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         </div>
         <div class="card">
             <a href="user_manage.php">使用者管理</a>
-            <div class="description">瀏覽會員資料與購物車內容</div>
+            <div class="description">瀏覽會員資料</div>
         </div>
         <div class="card">
             <a href="report.php">報表分析</a>
-            <div class="description">檢視銷售數據與熱門商品</div>
+            <div class="description">檢視銷售數據</div>
         </div>
     </div>
 
