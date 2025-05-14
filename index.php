@@ -18,6 +18,14 @@ $categories = [
 $currentCategory = $_GET['category'] ?? 'all';
 
 // 構建 SQL 查詢
+
+$searchQuery = $_GET['query'] ?? '';
+if (!empty($searchQuery)) {
+    $sql = "SELECT MIN(no) as no, name, MAX(image_path) as image_path FROM goods WHERE name LIKE CONCAT('%', ?, '%') GROUP BY name";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $searchQuery);
+} else {
+
 if ($currentCategory === 'all') {
     $sql = "SELECT MIN(no) as no, name, MAX(image_path) as image_path FROM goods GROUP BY name";
     $stmt = $conn->prepare($sql);
@@ -27,6 +35,7 @@ if ($currentCategory === 'all') {
     $stmt = $conn->prepare($sql);
     $types = str_repeat('s', count($categories[$currentCategory]));
     $stmt->bind_param($types, ...$categories[$currentCategory]);
+}
 }
 
 $stmt->execute();
@@ -201,7 +210,7 @@ $conn->close();
 
 <!-- 頂部導航 -->
 <div class="header">
-    <form action="search.php" method="GET" class="search-box">
+    <form action="index.php" method="GET" class="search-box">
         <input type="text" name="query" placeholder="搜尋..." required>
         <button type="submit">搜尋</button>
     </form>
