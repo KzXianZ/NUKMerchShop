@@ -15,37 +15,28 @@ $categories = [
     'all' => []
 ];
 
-// 取得分類與搜尋關鍵字
+// 獲取當前選擇的分類 (從URL參數)
 $currentCategory = $_GET['category'] ?? 'all';
-$searchTerm = trim($_GET['search'] ?? '');
 
-// 查詢商品
-if (!empty($searchTerm)) {
-    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name LIKE CONCAT('%', ?, '%') GROUP BY name";
+// 構建SQL查詢
+if ($currentCategory === 'all') {
+    $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $searchTerm);
 } else {
-    if ($currentCategory === 'all') {
-        $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
-        $stmt = $conn->prepare($sql);
-    } else {
-        $names = $categories[$currentCategory] ?? [];
-        if (count($names) > 0) {
-            $placeholders = implode(',', array_fill(0, count($names), '?'));
-            $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
-            $stmt = $conn->prepare($sql);
-            $types = str_repeat('s', count($names));
-            $stmt->bind_param($types, ...$names);
-        } else {
-            $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
-            $stmt = $conn->prepare($sql);
-        }
-    }
+    // 只查詢屬於當前分類的商品
+    $placeholders = implode(',', array_fill(0, count($categories[$currentCategory]), '?'));
+    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
+    $stmt = $conn->prepare($sql);
+    // 綁定參數
+    $types = str_repeat('s', count($categories[$currentCategory]));
+    $stmt->bind_param($types, ...$categories[$currentCategory]);
 }
 
 $stmt->execute();
 $result = $stmt->get_result();
 $products = [];
+
+// 商品圖片映射表
 $productImages = [
     '高雄大學紀念短褲' => 'https://www.costco.com.tw/medias/sys_master/images/hf1/hb5/259572020936734.jpg',
     '高雄大學紀念T恤' => 'https://ec.blueco.com.tw/Uploads/Images/產品說明/衣服類/衣服款式/圓領圓筒T恤1.jpg',
@@ -61,14 +52,22 @@ $productImages = [
 ];
 
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
+        $imagePath = $row['image_path'] ?? '';
+        if (empty($imagePath)) {
+            $imagePath = 'goodImage/default.png';
+        } elseif (!preg_match('/^https?:\/\//', $imagePath)) {
+            $imagePath = 'goodImage/' . $imagePath;
+        }
+
         $products[] = [
             'id' => $row['no'],
             'name' => $row['name'],
-            'image' => $productImages[$row['name']] ?? 'default.jpg'
+            'image' => $imagePath
         ];
     }
 }
+
 $conn->close();
 ?>
 
