@@ -11,23 +11,20 @@ $categories = [
     'pants' => ['高雄大學紀念短褲', '高雄大學紀念長褲'],
     'bags' => ['高雄大學20周年紀念帆布袋', '高雄大學紀念後背包'],
     'stationery' => ['高雄大學20周年紀念鋼筆'],
-    'hot' => ['高雄大學紀念T恤', '高雄大學紀念短褲'], // 假設這些是熱銷商品
-    'all' => [] // 全部商品
+    'hot' => ['高雄大學紀念T恤', '高雄大學紀念短褲'],
+    'all' => []
 ];
 
-// 獲取當前選擇的分類 (從URL參數)
 $currentCategory = $_GET['category'] ?? 'all';
 
-// 構建SQL查詢
+// 構建 SQL 查詢
 if ($currentCategory === 'all') {
-    $sql = "SELECT MIN(no) as no, name FROM goods GROUP BY name";
+    $sql = "SELECT MIN(no) as no, name, MAX(image_path) as image_path FROM goods GROUP BY name";
     $stmt = $conn->prepare($sql);
 } else {
-    // 只查詢屬於當前分類的商品
     $placeholders = implode(',', array_fill(0, count($categories[$currentCategory]), '?'));
-    $sql = "SELECT MIN(no) as no, name FROM goods WHERE name IN ($placeholders) GROUP BY name";
+    $sql = "SELECT MIN(no) as no, name, MAX(image_path) as image_path FROM goods WHERE name IN ($placeholders) GROUP BY name";
     $stmt = $conn->prepare($sql);
-    // 綁定參數
     $types = str_repeat('s', count($categories[$currentCategory]));
     $stmt->bind_param($types, ...$categories[$currentCategory]);
 }
@@ -36,21 +33,15 @@ $stmt->execute();
 $result = $stmt->get_result();
 $products = [];
 
-// 商品圖片映射表
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        // 從資料庫中獲取圖片路徑
-        $imagePath = $row['image_path'] ?? '';  // 確保有該欄位
-
-        // 如果圖片路徑是空的，則使用預設圖片
+        $imagePath = $row['image_path'] ?? '';
         if (empty($imagePath)) {
             $imagePath = 'goodImage/default.png';
         } elseif (!preg_match('/^https?:\/\//', $imagePath)) {
-            // 如果不是完整的URL，則將其視為本地圖片，並添加'goodImage/'目錄
             $imagePath = 'goodImage/' . $imagePath;
         }
 
-        // 將商品資訊加入products陣列
         $products[] = [
             'id' => $row['no'],
             'name' => $row['name'],
@@ -59,15 +50,6 @@ if ($result->num_rows > 0) {
     }
 }
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['no'],
-            'name' => $row['name'],
-            'image' => $productImages[$row['name']] ?? 'default.jpg'
-        ];
-    }
-}
 $conn->close();
 ?>
 
