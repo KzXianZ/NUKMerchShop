@@ -89,9 +89,6 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
         <div class="card">
             <a href="view_users.php">查看所有使用者</a>
         </div>
-        <div class="card">
-            <a href="view_user_cart.php">查看購物車內容</a>
-        </div>
     </div>
 
     <div class="back-link">
