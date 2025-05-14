@@ -6,9 +6,9 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
 
 require 'db.php';
 
-// 確保avatars目錄存在
-if (!file_exists('avatars')) {
-    mkdir('avatars', 0755, true);
+// 確保userAvatar目錄存在
+if (!file_exists('userAvatar')) {
+    mkdir('userAvatar', 0755, true);
 }
 
 // 初始化變數
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add'])) {
 
         // 處理頭像上傳
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = 'avatars/';
+            $upload_dir = 'userAvatar/';
             $avatar_name = uniqid() . '_' . basename($_FILES['avatar']['name']);
             $avatar_only = $avatar_name;
             $target_file = $upload_dir . $avatar_name;
@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['edit'])) {
     $avatar_only = $_POST['current_avatar'];
     
     if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-        $upload_dir = 'avatars/';
+        $upload_dir = 'userAvatar/';
         $avatar_name = uniqid() . '_' . basename($_FILES['avatar']['name']);
         $avatar_only = $avatar_name;
         $target_file = $upload_dir . $avatar_name;
@@ -402,7 +402,7 @@ if (!$result) {
                                 <td><input type="email" name="email" value="<?= htmlspecialchars($row['email']) ?>" required></td>
                                 <td><input type="text" name="address" value="<?= htmlspecialchars($row['address']) ?>"></td>
                                 <td class="avatar-upload">
-                                    <img src="avatars/<?= htmlspecialchars($row['avatar']) ?>" class="avatar-img" alt="頭像" onerror="this.onerror=null;this.src='avatars/default.png'">
+                                    <img src="userAvatar/<?= htmlspecialchars($row['avatar']) ?>" class="avatar-img" alt="頭像" onerror="this.onerror=null;this.src='userAvatar/default.png'">
                                     <input type="file" name="avatar" accept="image/*">
                                     <input type="hidden" name="current_avatar" value="<?= htmlspecialchars($row['avatar']) ?>">
                                 </td>
@@ -425,7 +425,7 @@ if (!$result) {
                             <td><?= htmlspecialchars($row['phone']) ?></td>
                             <td><?= htmlspecialchars($row['email']) ?></td>
                             <td><?= htmlspecialchars($row['address']) ?></td>
-                            <td><img src="avatars/<?= htmlspecialchars($row['avatar']) ?>" class="avatar-img" alt="頭像" onerror="this.onerror=null;this.src='avatars/default.png'"></td>
+                            <td><img src="userAvatar/<?= htmlspecialchars($row['avatar']) ?>" class="avatar-img" alt="頭像" onerror="this.onerror=null;this.src='userAvatar/default.png'"></td>
                             <td><?= $row['created_at'] ?></td>
                             <td class="action-cell">
                                 <a class="button-link" href="?edit=<?= $row['id'] ?>">編輯</a>
