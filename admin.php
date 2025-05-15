@@ -80,15 +80,15 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
             <div class="description">新增、修改、刪除商品資訊</div>
         </div>
         <div class="card">
-            <a href="order_manage.php">訂單管理</a>
+            <a href="view_orders.php">訂單管理</a>
             <div class="description">查看訂單與更新配送狀態</div>
         </div>
         <div class="card">
-            <a href="user_manage.php">使用者管理</a>
+            <a href="view_users.php">使用者管理</a>
             <div class="description">瀏覽會員資料</div>
         </div>
         <div class="card">
-            <a href="report.php">報表分析</a>
+            <a href="sales_report.php">報表分析</a>
             <div class="description">檢視銷售數據</div>
         </div>
     </div>
@@ -96,6 +96,10 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     <div class="logout">
         <a href="logout.php">登出</a>
     </div>
+
+    <div class="logout" style="margin-top: 20px;">
+    <a href="index.php">回到主頁</a>
+</div>
 </div>
 </body>
 </html>

@@ -1,6 +1,10 @@
 <!-- index.php -->
 <?php session_start();
 
+if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+    header("Location: admin.php");
+    exit();
+}
 // 如果已登入就跳轉到會員頁面
 if (isset($_SESSION['user_id'])) {
     header("Location: memberPage.php");
