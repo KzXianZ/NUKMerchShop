@@ -25,7 +25,7 @@ if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] == 0) {
     if (in_array($_FILES['avatar']['type'], $allowedTypes)) {
         // 生成新的檔案名稱（避免檔名重複）
         $avatar = uniqid('avatar_') . '.' . pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
-        $uploadDir = 'usersAvatar/';
+        $uploadDir = 'userAvatar/';
         $uploadFile = $uploadDir . $avatar;
         
         // 移動上傳的檔案
