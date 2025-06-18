@@ -1,9 +1,10 @@
 <?php
 // 連接資料庫
-$conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
+$conn = new mysqli('sql206.infinityfree.com', 'if0_38988364', 'oFFNHrcFfxtT05', 'if0_38988364_nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
 }
+$conn->set_charset("utf8mb4");
 
 // 定義商品分類映射
 $categories = [

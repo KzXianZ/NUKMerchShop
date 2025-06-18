@@ -4,16 +4,12 @@ if (!isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
     die("你沒有權限進入此頁面");
 }
 
-// 資料庫連線
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$dbname = 'nukmerchshop';
-$conn = new mysqli($host, $user, $password, $dbname);
+// 連接資料庫
+$conn = new mysqli('sql206.infinityfree.com', 'if0_38988364', 'oFFNHrcFfxtT05', 'if0_38988364_nukmerchshop');
 if ($conn->connect_error) {
-    die("資料庫連線失敗：" . $conn->connect_error);
+    die("資料庫連接失敗: " . $conn->connect_error);
 }
-
+$conn->set_charset("utf8mb4");
 // 時間區間查詢
 $start_date = $_GET['start_date'] ?? '';
 $end_date = $_GET['end_date'] ?? '';

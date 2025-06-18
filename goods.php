@@ -1,15 +1,16 @@
 <?php
 session_start();
 
-$conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
+// 連接資料庫
+$conn = new mysqli('sql206.infinityfree.com', 'if0_38988364', 'oFFNHrcFfxtT05', 'if0_38988364_nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
 }
-
-$productName = $_GET['name'] ?? '';
+$conn->set_charset("utf8mb4");
+$productName = trim($_GET['name'] ?? '');
 $productName = urldecode($productName);
 
-$sql = "SELECT * FROM goods WHERE name = ?";
+$sql = "SELECT * FROM goods WHERE TRIM(name) = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s", $productName);
 $stmt->execute();

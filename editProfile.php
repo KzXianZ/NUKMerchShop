@@ -22,7 +22,6 @@ if (!$stmt->fetch()) {
 }
 $stmt->close();
 
-$avatarPath = 'usersAvatar/' . ($avatar ?: 'default.png');
 ?>
 
 <!DOCTYPE html>
@@ -42,10 +41,7 @@ $avatarPath = 'usersAvatar/' . ($avatar ?: 'default.png');
             color: #5d4037;
         }
 
-        .avatar-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+       
 
         .avatar-container img {
             width: 120px;
@@ -89,10 +85,6 @@ $avatarPath = 'usersAvatar/' . ($avatar ?: 'default.png');
 <body>
 
 <h2>修改會員資料</h2>
-
-<div class="avatar-container">
-    <img src="<?php echo htmlspecialchars($avatarPath); ?>" alt="頭像">
-</div>
 
 <form method="POST" action="updateProfile.php" enctype="multipart/form-data">
     姓名: <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>"><br>

@@ -1,15 +1,19 @@
 <?php
 session_start();
 
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
 if (!isset($_SESSION['user_id'])) {
     die("請先登入才能查看購物車");
 }
 
-$conn = new mysqli('localhost', 'root', '', 'nukmerchshop');
+// 連接資料庫
+$conn = new mysqli('sql206.infinityfree.com', 'if0_38988364', 'oFFNHrcFfxtT05', 'if0_38988364_nukmerchshop');
 if ($conn->connect_error) {
     die("資料庫連接失敗: " . $conn->connect_error);
 }
-
+$conn->set_charset("utf8mb4");
 $userId = $_SESSION['user_id'];
 
 // 更新數量
